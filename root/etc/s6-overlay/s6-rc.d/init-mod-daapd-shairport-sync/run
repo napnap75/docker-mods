@@ -2,5 +2,29 @@
 
 # Alpine
 if [ -f /sbin/apk ]; then
-    apk add -U --update --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/edge/testing shairport-sync
+    apk add -U --update --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/edge/community shairport-sync
+fi
+
+echo "// This file has been automaticaly generated from the environment variables" > /etc/shairport-sync.conf
+last_section=
+for line in $(env | sort) ; do
+        name=${line%%=*}
+        value=${line#*=}
+        if [[ "$name" =~ ^SHAIRPORT_SYNC_CONFIG_.*  ]]; then
+                name=${name:22}
+                section=${name%%_*}
+                param=${name#*_}
+                if [[ "$section" != "$last_section" ]]; then
+                        if [[ "$last_section" != "" ]]; then
+                                echo "};" >> /etc/shairport-sync.conf
+                        fi
+                        echo "$section =" >> /etc/shairport-sync.conf
+                        echo "{" >> /etc/shairport-sync.conf
+                        last_section=$section
+                fi
+                echo "  $param = \"$value\";" >> /etc/shairport-sync.conf
+        fi
+done
+if [[ "$last_section" != "" ]]; then
+        echo "};" >> /etc/shairport-sync.conf
 fi
