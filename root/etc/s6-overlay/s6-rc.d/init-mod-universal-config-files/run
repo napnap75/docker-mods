@@ -1,0 +1,50 @@
+#!/usr/bin/with-contenv bash
+
+for file in $(echo $CONFIG_FILES | tr "|" "\n"); do
+        title="CONFIG_FILE_${file}_type"
+        if [[ "${!title}" == "ini" ]]; then
+                title="CONFIG_FILE_${file}_path"
+                filename=${!title}
+                if [[ ! -f "$filename.origin" ]]; then
+                        cp "$filename" "$filename.origin"
+                fi
+
+                declare -A configuration
+
+                section_name=
+                while IFS= read -r line; do
+                        if [[ "${line:0:1}" == "#" || -z "${line// }" ]]; then
+                                continue
+                        fi
+                        if [[ "$line" =~ ^(\[)(.*)(\])$ ]]; then
+                                section_name=${BASH_REMATCH[2]}
+                        elif [[ "$line" =~ ^([^=]+)=([^=]+)$ ]]; then
+                                configuration[${section_name}:${BASH_REMATCH[1]}]=${BASH_REMATCH[2]}
+                        else
+                                echo "Unknown line format for an ini file: $line"
+                        fi
+                done < $filename
+
+                for line in $(env | sort) ; do
+                        name=${line%%=*}
+                        value=${line#*=}
+                        if [[ "$name" =~ ^CONFIG_FILE_${file}_[0-9]+  ]]; then
+                                configuration[${value%%=*}]=${value#*=}
+                        fi
+                done
+
+                echo "Replacing file ${!title}"
+                echo "#This file has been automaticaly generated from the source file and modifed from the environment variables" > ${!title}
+                previous_section=
+                for link in $(echo "${!configuration[@]}" | sed 's/ /\n/g' | sort); do
+                        section=${link%%:*}
+                        if [[ "$section" != "$previous_section" ]]; then
+                                echo "[${section}]" >> ${!title}
+                                previous_section=$section
+                        fi
+                        echo "${link#*:}=${configuration[$link]}" >> ${!title}
+                done
+        else
+                echo "Unsupported file type ${!title}"
+        fi
+done
