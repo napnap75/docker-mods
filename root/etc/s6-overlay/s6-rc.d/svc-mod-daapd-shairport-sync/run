@@ -1,7 +1,7 @@
 #!/usr/bin/with-contenv bash
 # shellcheck shell=bash
 
-until [[ ! -z $(ps -ae | grep avahi-damon) ]]; do
+until [[ ! -z $(ps -ae | grep avahi-daemon) ]]; do
      sleep 1s
 done
 
