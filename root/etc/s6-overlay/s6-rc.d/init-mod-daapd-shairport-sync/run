@@ -22,7 +22,11 @@ for line in $(env | sort) ; do
                         echo "{" >> /etc/shairport-sync.conf
                         last_section=$section
                 fi
-                echo "  $param = \"$value\";" >> /etc/shairport-sync.conf
+                if [[ "$value" =~ ^[0-9]+$ ]]; then
+                        echo "  $param = $value;" >> /etc/shairport-sync.conf
+                else
+                        echo "  $param = \"$value\";" >> /etc/shairport-sync.conf
+                fi
         fi
 done
 if [[ "$last_section" != "" ]]; then
