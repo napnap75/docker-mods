@@ -2,7 +2,7 @@
 
 # Alpine
 if [ -f /sbin/apk ]; then
-    apk add -U --update --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/edge/community shairport-sync
+     apk add -U --update --no-cache shairport-sync
 fi
 
 echo "// This file has been automaticaly generated from the environment variables" > /etc/shairport-sync.conf
