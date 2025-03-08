@@ -3,7 +3,7 @@ name: Build Image
 on: [push, pull_request, workflow_dispatch]
 
 env:
-  ENDPOINT: "napnap75/mod-universal-config-files"
+  ENDPOINT: "napnap75/mod-wait5min"
   BRANCH: "master"
 
 jobs:
